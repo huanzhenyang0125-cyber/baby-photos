@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>爸爸挑选的宝贝照片 · 儿子专属大图画廊 💖</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #12131c;
+      color: #f1f2f6;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      padding-bottom: 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: linear-gradient(135deg, #ff477e 0%, #ff7eb3 100%);
+      padding: 30px 20px 25px 20px;
+      text-align: center;
+      box-shadow: 0 4px 25px rgba(255, 71, 126, 0.35);
+      border-radius: 0 0 24px 24px;
+      margin-bottom: 25px;
+    }
+    h1 {
+      font-size: 1.85rem;
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: #fff0f5;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      max-width: 1200px;
+      margin: 0 auto 20px auto;
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .stats-badge {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      color: #ffd166;
+      font-weight: bold;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .btn-primary {
+      background: #06d6a0;
+      color: #12131c;
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #05c08f;
+    }
+
+    /* 照片列表：大卡片图文并茂展示 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 22px;
+      padding: 0 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #1c1e2d;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 71, 126, 0.3);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(255, 71, 126, 0.3);
+      border-color: #ff477e;
+    }
+
+    .img-box {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      background: #25283b;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+    .img-box:hover img {
+      transform: scale(1.04);
+    }
+
+    .tag-year {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      color: #ffd166;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .tag-order {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ff477e;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(255, 71, 126, 0.5);
+    }
+
+    .info {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .title {
+      font-size: 1.05rem;
+      color: #fff;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .meta-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .pill-stage {
+      background: rgba(255,255,255,0.08);
+      color: #ddd;
+    }
+    .pill-mei {
+      background: rgba(255, 71, 126, 0.2);
+      color: #ff758c;
+    }
+    .pill-chou {
+      background: rgba(255, 209, 102, 0.2);
+      color: #ffd166;
+    }
+    .filepath {
+      font-size: 0.76rem;
+      color: #777;
+      word-break: break-all;
+      background: #151622;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-family: monospace;
+      margin-top: 4px;
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+    }
+    .empty-state h3 {
+      font-size: 1.4rem;
+      color: #ffd166;
+      margin-bottom: 12px;
+    }
+
+    /* Lightbox */
+    #lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      cursor: pointer;
+    }
+    #lightbox img {
+      max-width: 95vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .lightbox-title {
+      color: #ffd166;
+      font-size: 1.15rem;
+      font-weight: bold;
+      margin-top: 14px;
+    }
+    .close-tip {
+      color: #aaa;
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>❤️ 爸爸挑选的宝贝照片画廊 ❤️</h1>
+    <p class="subtitle">
+      这里只显示爸爸在手机上挑中打上 ❤️ 的照片 · 每一张都有清晰大图与详细信息
+    </p>
+  </header>
+
+  <div class="toolbar">
+    <div class="stats-badge" id="stats">正在加载爸爸挑选的照片...</div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="copyAllPaths()">📋 复制所有文件名</button>
+      <a class="btn" href="index.html">🌐 返回全集画廊 (178张)</a>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div id="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" />
+    <div class="lightbox-title" id="lightbox-title"></div>
+    <div class="close-tip">（点击任意处返回）</div>
+  </div>
+
+  <script>
+    const SYNC_CHANNEL = 'hzy-baby-photos-2026';
+    let photoData = [];
+    let selectedPhotos = [];
+
+    // 1. 先加载完整 photos.json
+    fetch('photos.json')
+      .then(res => res.json())
+      .then(async data => {
+        photoData = data;
+        await resolveSelected();
+        render();
+      })
+      .catch(err => {
+        document.getElementById('stats').innerText = '加载数据失败: ' + err;
+      });
+
+    // 解析选中项（优先查 URL ?ids=...，若无则查 ntfy 云端最新一次推送）
+    async function resolveSelected() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const idsParam = urlParams.get('ids');
+
+      if (idsParam) {
+        const idSet = new Set(idsParam.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n)));
+        selectedPhotos = photoData.filter(p => idSet.has(p.id));
+        return;
+      }
+
+      // 如果 URL 没有参数，尝试从 ntfy.sh 获取最新一次推送
+      try {
+        const res = await fetch(`https://ntfy.sh/${SYNC_CHANNEL}/json?poll=1`);
+        const text = await res.text();
+        const lines = text.trim().split('\n').filter(Boolean);
+        
+        for (let i = lines.length - 1; i >= 0; i--) {
+          try {
+            const msg = JSON.parse(lines[i]);
+            if (msg.event === 'message') {
+              // 尝试从 click 链接或 message 解析
+              let ids = [];
+              if (msg.click && msg.click.includes('ids=')) {
+                const match = msg.click.match(/ids=([0-9,]+)/);
+                if (match) ids = match[1].split(',').map(n => parseInt(n));
+              }
+              
+              if (ids.length > 0) {
+                const idSet = new Set(ids);
+                selectedPhotos = photoData.filter(p => idSet.has(p.id));
+                return;
+              } else if (msg.message) {
+                // 按标题匹配
+                selectedPhotos = photoData.filter(p => msg.message.includes(p.title) || msg.message.includes(p.filename));
+                if (selectedPhotos.length > 0) return;
+              }
+            }
+          } catch(e) {}
+        }
+      } catch (err) {
+        console.warn('拉取云端记录失败:', err);
+      }
+    }
+
+    function render() {
+      const grid = document.getElementById('grid');
+      const stats = document.getElementById('stats');
+      grid.innerHTML = '';
+
+      if (selectedPhotos.length === 0) {
+        stats.innerText = '暂无选中照片记录';
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <h3>还没有收到爸爸挑选的照片哦</h3>
+            <p>请让爸爸在 <a href="index.html" style="color: #ff477e; font-weight: bold;">主画廊</a> 里点爱心挑选并点击“选好啦！发给儿子”，照片就会立刻在这里显示！</p>
+          </div>
+        `;
+        return;
+      }
+
+      stats.innerText = `爸爸一共挑选了 ${selectedPhotos.length} 张珍贵照片 ❤️`;
+
+      selectedPhotos.forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="img-box" onclick="openLightbox('${encodeURI(p.path)}', '${p.year}年 · ${p.title}')">
+            <span class="tag-year">${p.year}年</span>
+            <span class="tag-order">#${idx + 1}</span>
+            <img src="${encodeURI(p.path)}" alt="${p.title}" loading="lazy" />
+          </div>
+          <div class="info">
+            <div class="title">${p.title}</div>
+            <div class="meta-row">
+              <span class="pill pill-stage">${p.stage_label}</span>
+              <span class="pill ${p.category === '美照' ? 'pill-mei' : 'pill-chou'}">${p.category === '美照' ? '🌸 美照' : '🤪 搞怪'}</span>
+            </div>
+            <div class="filepath">${p.filename}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openLightbox(src, title) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-title').innerText = title || '';
+      document.getElementById('lightbox').style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+    }
+
+    function copyAllPaths() {
+      if (selectedPhotos.length === 0) return;
+      const text = selectedPhotos.map((p, idx) => `${idx + 1}. [${p.year}年·${p.category}] ${p.title} (${p.filename})`).join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        alert(`已成功复制 ${selectedPhotos.length} 张照片信息到剪贴板！`);
+      }).catch(() => {
+        alert('复制失败，请手动选择');
+      });
+    }
+  </script>
+</body>
+</html>
