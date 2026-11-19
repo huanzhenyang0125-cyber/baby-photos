@@ -334,7 +334,7 @@
     .modal-box {
       background: #1c1e2d;
       border-radius: 24px;
-      padding: 26px 20px;
+      padding: 24px 20px;
       max-width: 540px;
       width: 100%;
       text-align: center;
@@ -355,19 +355,22 @@
       border-radius: 20px;
       font-size: 0.9rem;
       font-weight: bold;
-      margin: 0 auto 10px auto;
+      margin: 0 auto 8px auto;
     }
     .modal-box h2 {
       color: #fff;
-      font-size: 1.6rem;
+      font-size: 1.55rem;
       font-weight: 800;
       margin-bottom: 6px;
     }
-    .modal-desc {
-      color: #ddd;
-      font-size: 0.98rem;
-      line-height: 1.5;
-      margin-bottom: 14px;
+    .sync-status {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      display: inline-block;
     }
 
     /* 弹窗内的照片缩略图画廊 */
@@ -384,13 +387,13 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
       gap: 10px;
-      max-height: 40vh;
+      max-height: 38vh;
       overflow-y: auto;
       padding: 10px;
       background: #12131c;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .modal-thumb {
       position: relative;
@@ -436,18 +439,18 @@
     }
 
     .modal-tip {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #aaa;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       line-height: 1.4;
     }
     .modal-btn {
       background: linear-gradient(135deg, #06d6a0 0%, #1b9aaa 100%);
       color: #fff;
       border: none;
-      padding: 13px 28px;
+      padding: 12px 28px;
       border-radius: 30px;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: bold;
       width: 100%;
       cursor: pointer;
@@ -524,14 +527,12 @@
   <!-- 提交成功客户端大图文确认弹窗 -->
   <div id="modal">
     <div class="modal-box">
-      <div class="modal-badge">✅ 发送成功反馈</div>
-      <h2>🎉 已同步给儿子！</h2>
-      <p class="modal-desc" id="modal-desc">
-        爸爸您挑好的照片已通过云端实时传给在国外的儿子啦！
-      </p>
+      <div class="modal-badge">✅ 发送反馈</div>
+      <h2>🎉 挑选完成！</h2>
+      <div class="sync-status" id="sync-status">⏳ 正在同步给在国外的儿子...</div>
 
       <div class="modal-gallery-title">
-        <span>📸 已成功发送的照片清单（可点击放大）：</span>
+        <span>📸 已挑中的照片（点击可看大图）：</span>
         <span id="modal-photo-count">0 张</span>
       </div>
 
@@ -608,8 +609,8 @@
       });
     }
 
-    function toggleSelect(e, filename) {
-      e.stopPropagation();
+    function toggleSelect(event, filename) {
+      event.stopPropagation();
       if (selected.has(filename)) {
         selected.delete(filename);
       } else {
@@ -653,7 +654,7 @@
       setTimeout(() => { t.style.display = 'none'; }, 3000);
     }
 
-    // 提交挑选结果（客户端图文展示 + 云端画廊链接直达）
+    // 提交挑选结果（纯 JSON 提交，100% 避免请求头编码问题）
     function submitSelection() {
       if (selected.size === 0) {
         alert('爸爸，您还没有点爱心挑照片呢！\n看到喜欢的照片，点一下右上角的 ❤️ 就可以挑中啦！');
@@ -672,31 +673,71 @@
         listArr.map((item, idx) => `${idx + 1}. [${item.year}年·${item.category}] ${item.title}`).join('\n') +
         `\n\n👉 儿子专属在线大图画廊：\n${reviewUrl}`;
 
-      // 1. 发送给云端通道（带直达 Review 画廊链接和操作按钮）
-      fetch(`https://ntfy.sh/${SYNC_CHANNEL}`, {
-        method: 'POST',
-        headers: {
-          'Title': `=?UTF-8?B?${btoa(unescape(encodeURIComponent(`爸爸挑选好了 ${listArr.length} 张照片！`)))}?=`,
-          'Tags': 'tada,heart,camera',
-          'Click': reviewUrl,
-          'Actions': `view, 📷 点击直接看爸爸挑中的照片图文画廊, ${reviewUrl}`
-        },
-        body: textMessage
-      }).catch(e => console.log('Sync err:', e));
+      // 1. 弹出客户端图文画廊弹窗
+      renderModalGallery(listArr);
+      document.getElementById('modal-photo-count').innerText = `${listArr.length} 张`;
+      const syncStatus = document.getElementById('sync-status');
+      syncStatus.innerHTML = '<span style="color: #ffd166;">⏳ 正在实时同步到后台...</span>';
+      document.getElementById('modal').style.display = 'flex';
 
-      // 2. 自动复制到剪贴板
+      // 2. 自动复制到剪贴板备用
       if (navigator.clipboard) {
         navigator.clipboard.writeText(textMessage).catch(() => {});
       }
 
-      // 3. 客户端立即展示这批照片的图文缩略图反馈！
-      renderModalGallery(listArr);
-      document.getElementById('modal-desc').innerText = `爸爸您挑好的 ${listArr.length} 张照片已经成功发送给儿子啦！`;
-      document.getElementById('modal-photo-count').innerText = `${listArr.length} 张`;
-      document.getElementById('modal').style.display = 'flex';
+      // 3. 采用 JSON POST 发送，完全避免 HTTP Header 字符集编码限制
+      const payload = {
+        topic: SYNC_CHANNEL,
+        title: `爸爸挑选好了 ${listArr.length} 张照片！`,
+        message: textMessage,
+        tags: ['tada', 'heart', 'camera'],
+        click: reviewUrl,
+        actions: [
+          {
+            action: 'view',
+            label: '📷 查看爸爸挑选的大图画廊',
+            url: reviewUrl
+          }
+        ]
+      };
 
-      showToast(`✅ 成功发送 ${listArr.length} 张照片给儿子！`);
+      fetch('https://ntfy.sh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (res.ok) {
+          syncStatus.innerHTML = '<span style="color: #06d6a0;">✅ 已成功发送！儿子后台已实时收到</span>';
+        } else {
+          fallbackTextPost(textMessage, syncStatus);
+        }
+      })
+      .catch(err => {
+        console.warn('JSON 提交出错，自动尝试备用通道:', err);
+        fallbackTextPost(textMessage, syncStatus);
+      });
+
+      showToast(`✅ 正在发送 ${listArr.length} 张照片给儿子...`);
       render();
+    }
+
+    // 备用文本提交通道
+    function fallbackTextPost(textMessage, syncStatus) {
+      fetch(`https://ntfy.sh/${SYNC_CHANNEL}`, {
+        method: 'POST',
+        body: textMessage
+      })
+      .then(res => {
+        if (res.ok) {
+          syncStatus.innerHTML = '<span style="color: #06d6a0;">✅ 已通过备用通道成功送达！</span>';
+        } else {
+          syncStatus.innerHTML = '<span style="color: #ffd166;">⚠️ 已保存本地，请微信粘贴发送</span>';
+        }
+      })
+      .catch(e => {
+        syncStatus.innerHTML = '<span style="color: #ffd166;">⚠️ 已保存本地，请微信粘贴发送</span>';
+      });
     }
 
     // 在弹窗中渲染所有被挑选照片的缩略图
