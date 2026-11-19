@@ -24,7 +24,7 @@
       margin-bottom: 20px;
     }
     h1 {
-      font-size: 1.8rem;
+      font-size: 1.85rem;
       color: #fff;
       font-weight: 800;
       text-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -57,7 +57,7 @@
       color: #ddd;
       padding: 10px 16px;
       border-radius: 25px;
-      font-size: 0.98rem;
+      font-size: 0.96rem;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
@@ -74,9 +74,10 @@
     .sub-filter {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       margin: 15px 0 20px 0;
       padding: 0 15px;
+      flex-wrap: wrap;
     }
     .sub-btn {
       background: rgba(255,255,255,0.06);
@@ -86,6 +87,7 @@
       border-radius: 20px;
       font-size: 0.92rem;
       cursor: pointer;
+      transition: all 0.2s;
     }
     .sub-btn.active {
       background: #ffd166;
@@ -117,24 +119,55 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       position: relative;
       transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
     }
     .photo-card.selected {
       border-color: #ff477e;
       box-shadow: 0 0 18px rgba(255, 71, 126, 0.45);
     }
-    .photo-card img {
+    .img-wrap {
+      position: relative;
       width: 100%;
       height: 200px;
-      object-fit: cover;
-      display: block;
+      background: #25283b;
       cursor: pointer;
+      overflow: hidden;
     }
     @media (min-width: 600px) {
-      .photo-card img { height: 240px; }
+      .img-wrap { height: 240px; }
+    }
+    .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+    .photo-card:hover .img-wrap img {
+      transform: scale(1.04);
+    }
+
+    .badge-year {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      color: #ffd166;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
     }
 
     .card-meta {
       padding: 10px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .card-title {
       font-size: 0.88rem;
@@ -145,6 +178,26 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .tag {
+      font-size: 0.72rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .tag-mei {
+      background: rgba(255, 71, 126, 0.2);
+      color: #ff758c;
+    }
+    .tag-chou {
+      background: rgba(255, 209, 102, 0.2);
+      color: #ffd166;
     }
 
     /* 大爱心收藏按钮 */
@@ -164,6 +217,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      z-index: 10;
       transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .btn-heart.checked {
@@ -225,14 +279,20 @@
     }
     #lightbox img {
       max-width: 95vw;
-      max-height: 82vh;
+      max-height: 80vh;
       object-fit: contain;
       border-radius: 10px;
     }
+    .lightbox-title {
+      color: #ffd166;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 12px;
+    }
     .close-tip {
       color: #aaa;
-      margin-top: 15px;
-      font-size: 1rem;
+      margin-top: 6px;
+      font-size: 0.9rem;
     }
 
     /* 成功弹窗 */
@@ -297,16 +357,16 @@
   <header>
     <h1>✨ 爸爸的专属选图通道 ✨</h1>
     <p class="guide">
-      爸爸您好！照片已按从小到大整理好啦。<br />
+      爸爸您好！全量 178 张照片已全部整理好啦（2017-2026年）<br />
       遇到喜欢的，点一下右上角的 <b>❤️ 爱心</b> 就能挑中！
     </p>
   </header>
 
   <!-- 年龄大阶段导航 -->
   <div class="nav-bar">
-    <button class="nav-btn active" onclick="switchStage('1_小', this)">👶 小 (0-2岁·婴儿期)</button>
-    <button class="nav-btn" onclick="switchStage('2_中', this)">🧸 中 (3-5岁·幼儿园)</button>
-    <button class="nav-btn" onclick="switchStage('3_大', this)">🎒 大 (6-9岁·小学期)</button>
+    <button class="nav-btn active" id="btn-stage-1" onclick="switchStage('1_小', this)">👶 小 (0-2岁 · 63张)</button>
+    <button class="nav-btn" id="btn-stage-2" onclick="switchStage('2_中', this)">🧸 中 (3-5岁 · 30张)</button>
+    <button class="nav-btn" id="btn-stage-3" onclick="switchStage('3_大', this)">🎒 大 (6-9岁 · 85张)</button>
   </div>
 
   <!-- 美照 / 搞怪 切换 -->
@@ -332,6 +392,7 @@
   <!-- 点击看大图 -->
   <div id="lightbox" onclick="closeLightbox()">
     <img id="lightbox-img" src="" />
+    <div class="lightbox-title" id="lightbox-title"></div>
     <div class="close-tip">（点击任意处返回）</div>
   </div>
 
@@ -354,18 +415,28 @@
     let photoData = [];
     let curStage = '1_小';
     let curCat = 'all';
-    const selected = new Set();
+    const selected = new Map(); // filename -> item
 
     // 加载数据
     fetch('photos.json')
       .then(res => res.json())
       .then(data => {
         photoData = data;
+        updateCounts();
         render();
       })
       .catch(err => {
         console.error('加载照片失败:', err);
       });
+
+    function updateCounts() {
+      const c1 = photoData.filter(p => p.stage_code === '1_小').length;
+      const c2 = photoData.filter(p => p.stage_code === '2_中').length;
+      const c3 = photoData.filter(p => p.stage_code === '3_大').length;
+      document.getElementById('btn-stage-1').innerText = `👶 小 (0-2岁 · ${c1}张)`;
+      document.getElementById('btn-stage-2').innerText = `🧸 中 (3-5岁 · ${c2}张)`;
+      document.getElementById('btn-stage-3').innerText = `🎒 大 (6-9岁 · ${c3}张)`;
+    }
 
     function render() {
       const grid = document.getElementById('grid');
@@ -380,26 +451,32 @@
         card.className = 'photo-card ' + (isChecked ? 'selected' : '');
 
         card.innerHTML = `
-          <button class="btn-heart ${isChecked ? 'checked' : ''}" onclick="toggleSelect(event, '${p.filename}')">
-            ${isChecked ? '❤️' : '🤍'}
-          </button>
-          <img src="${encodeURI(p.path)}" alt="${p.filename}" onclick="openLightbox('${encodeURI(p.path)}')" loading="lazy" />
+          <div class="img-wrap" onclick="openLightbox('${encodeURI(p.path)}', '${p.year}年 · ${p.title}')">
+            <span class="badge-year">${p.year}年</span>
+            <button class="btn-heart ${isChecked ? 'checked' : ''}" onclick="toggleSelect(event, '${p.filename}')">
+              ${isChecked ? '❤️' : '🤍'}
+            </button>
+            <img src="${encodeURI(p.path)}" alt="${p.title}" loading="lazy" />
+          </div>
           <div class="card-meta">
-            <div class="card-title">${cleanName(p.filename)}</div>
+            <div class="card-title">${p.title}</div>
+            <div class="card-tags">
+              <span class="tag ${p.category === '美照' ? 'tag-mei' : 'tag-chou'}">${p.category === '美照' ? '🌸 美照' : '🤪 搞怪'}</span>
+            </div>
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    function cleanName(n) {
-      return n.replace(/^[0-9]+_[0-9]+_/, '').replace('.jpg', '');
-    }
-
     function toggleSelect(e, filename) {
       e.stopPropagation();
-      if (selected.has(filename)) selected.delete(filename);
-      else selected.add(filename);
+      if (selected.has(filename)) {
+        selected.delete(filename);
+      } else {
+        const item = photoData.find(p => p.filename === filename);
+        if (item) selected.set(filename, item);
+      }
 
       document.getElementById('count').innerText = selected.size;
       render();
@@ -420,8 +497,9 @@
       render();
     }
 
-    function openLightbox(src) {
+    function openLightbox(src, title) {
       document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-title').innerText = title || '';
       document.getElementById('lightbox').style.display = 'flex';
     }
 
@@ -436,9 +514,9 @@
         return;
       }
 
-      const listArr = Array.from(selected);
+      const listArr = Array.from(selected.values());
       const textMessage = `【爸爸挑好的照片清单（共 ${listArr.length} 张）】：\n` + 
-        listArr.map((item, idx) => `${idx + 1}. ${cleanName(item)}`).join('\n');
+        listArr.map((item, idx) => `${idx + 1}. [${item.year}年·${item.category}] ${item.title}`).join('\n');
 
       // 1. 发送给云端同步通道（儿子在国外直接能看到）
       fetch(`https://ntfy.sh/${SYNC_CHANNEL}`, {
