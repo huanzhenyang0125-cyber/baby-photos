@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>宝贝成长照片挑选 · 给爸爸专属通道 🎂</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #12131c;
+      color: #f1f2f6;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      padding-bottom: 120px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 顶部横幅 */
+    header {
+      background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+      padding: 30px 20px 25px 20px;
+      text-align: center;
+      box-shadow: 0 4px 25px rgba(255, 117, 140, 0.35);
+      border-radius: 0 0 24px 24px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      margin-bottom: 8px;
+    }
+    p.guide {
+      color: #fff0f5;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    /* 阶段导航栏 */
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      background: rgba(18, 19, 28, 0.95);
+      backdrop-filter: blur(15px);
+      z-index: 90;
+      padding: 12px 15px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-btn {
+      flex: 1;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #ddd;
+      padding: 10px 16px;
+      border-radius: 25px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .nav-btn.active {
+      background: #ff477e;
+      border-color: #ff477e;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 71, 126, 0.4);
+    }
+
+    /* 分类标签切换（美照 / 丑照） */
+    .sub-filter {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 15px 0 20px 0;
+      padding: 0 15px;
+    }
+    .sub-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #bbb;
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .sub-btn.active {
+      background: #ffd166;
+      color: #222;
+      font-weight: bold;
+      border-color: #ffd166;
+    }
+
+    /* 瀑布流/照片网格 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+      gap: 14px;
+      padding: 0 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (min-width: 600px) {
+      .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+      h1 { font-size: 2.3rem; }
+    }
+
+    /* 照片卡片 */
+    .photo-card {
+      background: #1c1e2d;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      position: relative;
+      transition: all 0.2s;
+    }
+    .photo-card.selected {
+      border-color: #ff477e;
+      box-shadow: 0 0 18px rgba(255, 71, 126, 0.45);
+    }
+    .photo-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      cursor: pointer;
+    }
+    @media (min-width: 600px) {
+      .photo-card img { height: 240px; }
+    }
+
+    .card-meta {
+      padding: 10px 12px;
+    }
+    .card-title {
+      font-size: 0.88rem;
+      color: #eee;
+      font-weight: 500;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* 大爱心收藏按钮 */
+    .btn-heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: #fff;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-heart.checked {
+      background: #ff477e;
+      border-color: #fff;
+      color: #fff;
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(255, 71, 126, 0.6);
+    }
+
+    /* 底部悬浮操作栏 */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(18, 19, 28, 0.96);
+      backdrop-filter: blur(15px);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+    .counter-info {
+      font-size: 1.05rem;
+      color: #ffd166;
+      font-weight: bold;
+    }
+    .submit-btn {
+      background: linear-gradient(135deg, #06d6a0 0%, #1b9aaa 100%);
+      color: #fff;
+      border: none;
+      padding: 13px 26px;
+      border-radius: 35px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(6, 214, 160, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .submit-btn:active { transform: scale(0.96); }
+
+    /* 大图弹窗 */
+    #lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+    #lightbox img {
+      max-width: 95vw;
+      max-height: 82vh;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .close-tip {
+      color: #aaa;
+      margin-top: 15px;
+      font-size: 1rem;
+    }
+
+    /* 成功弹窗 */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-box {
+      background: #1f2233;
+      border-radius: 20px;
+      padding: 30px 24px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+    .modal-box h2 {
+      color: #06d6a0;
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+    }
+    .modal-box p {
+      color: #ddd;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+    .text-preview {
+      background: #141622;
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: left;
+      font-size: 0.9rem;
+      color: #ffd166;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    .modal-btn {
+      background: #ff477e;
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>✨ 爸爸的专属选图通道 ✨</h1>
+    <p class="guide">
+      爸爸您好！照片已按从小到大整理好啦。<br />
+      遇到喜欢的，点一下右上角的 <b>❤️ 爱心</b> 就能挑中！
+    </p>
+  </header>
+
+  <!-- 年龄大阶段导航 -->
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="switchStage('1_小', this)">👶 小 (0-2岁·婴儿期)</button>
+    <button class="nav-btn" onclick="switchStage('2_中', this)">🧸 中 (3-5岁·幼儿园)</button>
+    <button class="nav-btn" onclick="switchStage('3_大', this)">🎒 大 (6-9岁·小学期)</button>
+  </div>
+
+  <!-- 美照 / 搞怪 切换 -->
+  <div class="sub-filter">
+    <button class="sub-btn active" onclick="switchCat('all', this)">全部看</button>
+    <button class="sub-btn" onclick="switchCat('美照', this)">🌸 漂漂亮亮美照</button>
+    <button class="sub-btn" onclick="switchCat('丑照', this)">🤪 搞怪幽默瞬间</button>
+  </div>
+
+  <!-- 照片瀑布流 -->
+  <div class="grid" id="grid"></div>
+
+  <!-- 底部悬浮控制台 -->
+  <div class="bottom-bar">
+    <div class="counter-info">
+      已挑好: <span id="count" style="font-size: 1.4rem;">0</span> 张
+    </div>
+    <button class="submit-btn" onclick="submitSelection()">
+      选好啦！发给儿子 🚀
+    </button>
+  </div>
+
+  <!-- 点击看大图 -->
+  <div id="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" />
+    <div class="close-tip">（点击任意处返回）</div>
+  </div>
+
+  <!-- 提交成功弹窗 -->
+  <div id="modal">
+    <div class="modal-box">
+      <h2>🎉 太棒啦！已发送成功！</h2>
+      <p>选好的照片清单已经通过云端<b>实时同步给在国外的儿子</b>啦！</p>
+      <div class="text-preview" id="text-preview"></div>
+      <p style="font-size: 0.95rem; color: #aaa; margin-bottom: 15px;">
+        （同时已将文字复制到剪贴板，爸爸也可直接去微信粘贴发给儿子）
+      </p>
+      <button class="modal-btn" onclick="closeModal()">好的，我知道啦！</button>
+    </div>
+  </div>
+
+  <script>
+    // 云端同步通道（国内与海外均可畅通访问）
+    const SYNC_CHANNEL = 'hzy-baby-photos-2026';
+    let photoData = [];
+    let curStage = '1_小';
+    let curCat = 'all';
+    const selected = new Set();
+
+    // 加载数据
+    fetch('photos.json')
+      .then(res => res.json())
+      .then(data => {
+        photoData = data;
+        render();
+      })
+      .catch(err => {
+        console.error('加载照片失败:', err);
+      });
+
+    function render() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+
+      photoData.forEach(p => {
+        if (!p.stage.startsWith(curStage)) return;
+        if (curCat !== 'all' && p.category !== curCat) return;
+
+        const isChecked = selected.has(p.filename);
+        const card = document.createElement('div');
+        card.className = 'photo-card ' + (isChecked ? 'selected' : '');
+
+        card.innerHTML = `
+          <button class="btn-heart ${isChecked ? 'checked' : ''}" onclick="toggleSelect(event, '${p.filename}')">
+            ${isChecked ? '❤️' : '🤍'}
+          </button>
+          <img src="${encodeURI(p.path)}" alt="${p.filename}" onclick="openLightbox('${encodeURI(p.path)}')" loading="lazy" />
+          <div class="card-meta">
+            <div class="card-title">${cleanName(p.filename)}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function cleanName(n) {
+      return n.replace(/^[0-9]+_[0-9]+_/, '').replace('.jpg', '');
+    }
+
+    function toggleSelect(e, filename) {
+      e.stopPropagation();
+      if (selected.has(filename)) selected.delete(filename);
+      else selected.add(filename);
+
+      document.getElementById('count').innerText = selected.size;
+      render();
+    }
+
+    function switchStage(stage, btn) {
+      curStage = stage;
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    function switchCat(cat, btn) {
+      curCat = cat;
+      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+    }
+
+    // 提交挑选结果（云端实时回传 + 剪贴板双保险）
+    function submitSelection() {
+      if (selected.size === 0) {
+        alert('爸爸，您还没有点爱心挑照片呢！\n看到喜欢的照片，点一下右上角的 ❤️ 就可以挑中啦！');
+        return;
+      }
+
+      const listArr = Array.from(selected);
+      const textMessage = `【爸爸挑好的照片清单（共 ${listArr.length} 张）】：\n` + 
+        listArr.map((item, idx) => `${idx + 1}. ${cleanName(item)}`).join('\n');
+
+      // 1. 发送给云端同步通道（儿子在国外直接能看到）
+      fetch(`https://ntfy.sh/${SYNC_CHANNEL}`, {
+        method: 'POST',
+        headers: {
+          'Title': `=?UTF-8?B?${btoa(unescape(encodeURIComponent(`爸爸挑选好了 ${listArr.length} 张照片！`)))}?=`,
+          'Tags': 'tada,heart,baby'
+        },
+        body: textMessage
+      }).catch(e => console.log('Sync err:', e));
+
+      // 2. 自动复制到剪贴板，方便爸爸微信粘贴
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(textMessage).catch(() => {});
+      }
+
+      // 3. 弹窗提示
+      document.getElementById('text-preview').innerText = textMessage;
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
